@@ -3,6 +3,7 @@ const userProvider = require("../../app/User/userProvider");
 const userService = require("../../app/User/userService");
 const baseResponse = require("../../../config/baseResponseStatus");
 const {response, errResponse} = require("../../../config/response");
+const postProvider = require("../Post/postProvider");
 
 const regexEmail = require("regex-email");
 const {emit} = require("nodemon");
@@ -77,16 +78,16 @@ exports.getUsers = async function (req, res) {
 
 /*
     API No. 1.3
-    API Name: 유저 상세 조회 API
+    API Name: 유저 피드 조회 API
     [GET] /users/:userIdx
 */
-exports.getUser = async function (req, res) {
+exports.getUserFeed = async function (req, res) {
     /*
         Path Variable: userIdx
     */
     const userIdx = req.params.userIdx;
 
-    // validation
+    // validation - DB 바깥의 처리 (형식상 처리)
     if(!userIdx) {
         return res.send(errResponse(baseResponse.USER_USERIDX_EMPTY));
     } 
@@ -94,9 +95,14 @@ exports.getUser = async function (req, res) {
         return res.send(errResponse(baseResponse.USER_USERIDX_LENGTH));
     }
 
-    const userIdxResult = await userProvider.retrieveUser(userIdx); // 동욱 : 임의의 변수 할당해 함수의 호출 값을 받음
-    return res.send(response(baseResponse.SUCCESS, userIdxResult))
-    // 동욱 : 유저 request에서 userIdx와 대응하는 user 세부 정보를 응답함
+    const userInfo = await userProvider.retrieveUserInfo(userIdx);
+    const userPosts = await postProvider.retrieveUserPosts(userIdx); 
+
+    return res.send(response(baseResponse.SUCCESS, {
+        userInfo: userInfo,
+        userPosts: userPosts
+    }));
+    
 }
 
 /**

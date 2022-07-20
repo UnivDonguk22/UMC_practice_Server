@@ -22,14 +22,14 @@ exports.retrieveUserList = async function (email) {
   }
 };
 
-exports.retrieveUser = async function (userIdx) {
+exports.retrieveUserInfo = async function (userIdx) {
   const connection = await pool.getConnection(async (conn) => conn); //getConnection () 은 node.js의 내장 함수
-  const userResult = await userDao.selectUserIdx(connection, userIdx);
+  const userInfoResult = await userDao.selectUserInfo(connection, userIdx);
 
   connection.release();
   // DB와의 접속을 끊음 => (DB의 상호보완을 위함)
 
-  return userResult[0];
+  return userInfoResult[0];
 };
 
 exports.emailCheck = async function (email) {
